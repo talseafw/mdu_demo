@@ -42,3 +42,57 @@ enterprise:{name:'MDU Enterprise',icon:'▦',desc:'Điều phối hệ sinh thá
 ['monitoring','Giám sát hệ thống','monitor'],
 ['architecture','Kiến trúc nền tảng','architecture']]}
 };
+
+// Five additional workflows per system. Records share the existing local storage model.
+const EXTRA_SCREENS = {
+crm: [
+  ['leads','Khách hàng tiềm năng','table',['Khách hàng','Nguồn','Phụ trách','Trạng thái'],[['Lumi Retail','Website','Minh Anh','Cần liên hệ'],['An Phát Logistics','Giới thiệu','Hoàng Nam','Đã tư vấn'],['Mộc Studio','Sự kiện','Thanh Hà','Cần liên hệ']]],
+  ['campaigns','Chiến dịch marketing','progress',null,[['Chào tháng 11','Tiếp cận 500 khách hàng mới',65],['Enterprise Growth','20 lịch demo sản phẩm',40],['Khách hàng thân thiết','100 lượt gia hạn',80]]],
+  ['quotes','Báo giá','table',['Báo giá','Khách hàng','Giá trị','Trạng thái'],[['BG-041','Lumi Retail','85 triệu ₫','Đang soạn'],['BG-042','An Phát Logistics','240 triệu ₫','Đã gửi'],['BG-043','Mộc Studio','36 triệu ₫','Đã chấp nhận']]],
+  ['support','Chăm sóc khách hàng','checklist',null,[['Gọi lại Sunrise','Minh Anh · Xác nhận yêu cầu triển khai',false],['Hướng dẫn Nova sử dụng CRM','Thanh Hà · Buổi đào tạo đầu tiên',true],['Khảo sát mức độ hài lòng','Hoàng Nam · Nhóm khách hàng tháng 10',false]]],
+  ['products','Sản phẩm & dịch vụ','table',['Sản phẩm','Mã dịch vụ','Đơn giá','Trạng thái'],[['CRM Business','CRM-BIZ','990.000 ₫ / tháng','Đang bán'],['Triển khai Enterprise','ENT-SETUP','25.000.000 ₫','Đang bán'],['Đào tạo đội ngũ','TRAIN-01','5.000.000 ₫','Đang bán']]]
+],
+hrm: [
+  ['recruitment','Tuyển dụng','table',['Vị trí','Phòng ban','Ứng viên','Trạng thái'],[['Frontend Developer','Công nghệ','12 ứng viên','Phỏng vấn'],['Account Executive','Kinh doanh','8 ứng viên','Nhận hồ sơ'],['HR Manager','Nhân sự','4 ứng viên','Đề nghị nhận việc']]],
+  ['onboarding','Hội nhập nhân sự','checklist',null,[['Chuẩn bị tài khoản nhân viên','IT · Email, Workspace và quyền truy cập',true],['Giới thiệu văn hóa công ty','HR · Buổi chào đón nhân viên mới',false],['Đánh giá sau thử việc','Quản lý · Mốc 60 ngày',false]]],
+  ['training','Đào tạo & phát triển','progress',null,[['Kỹ năng quản lý dự án','Đội công nghệ · 6 chuyên đề',50],['Bán hàng tư vấn','Đội kinh doanh · 4 chuyên đề',75],['An toàn thông tin','Toàn công ty · Khóa bắt buộc',90]]],
+  ['reviews','Đánh giá hiệu suất','table',['Nhân sự','Kỳ đánh giá','Mục tiêu','Trạng thái'],[['Minh Anh','Q4 / 2026','Doanh số 1,5 tỷ','Tự đánh giá'],['Hoàng Nam','Q4 / 2026','Ra mắt 3 tính năng','Quản lý đánh giá'],['Thanh Hà','Q4 / 2026','Tuyển đủ 6 vị trí','Hoàn tất']]],
+  ['benefits','Phúc lợi & đề xuất','approval',null,[['Gói sức khỏe · Minh Anh','Khám sức khỏe định kỳ · 2.000.000 ₫','Chờ duyệt'],['Hỗ trợ học tập · Hoàng Nam','Chứng chỉ chuyên môn · 3.000.000 ₫','Chờ duyệt']]]
+],
+core: [
+  ['organization','Cơ cấu tổ chức','table',['Đơn vị','Mã đơn vị','Quản lý','Trạng thái'],[['Công nghệ','TECH','Hoàng Nam','Hoạt động'],['Kinh doanh','SALES','Minh Anh','Hoạt động'],['Nhân sự','PEOPLE','Thanh Hà','Hoạt động']]],
+  ['security','Chính sách bảo mật','apps',null,[['Xác thực hai bước','Yêu cầu bước xác minh bổ sung khi đăng nhập (mô phỏng)','Bật'],['Cảnh báo đăng nhập','Thông báo khi có phiên đăng nhập mới (mô phỏng)','Bật'],['Giới hạn phiên','Tự động kết thúc phiên sau 8 giờ (mô phỏng)','Tắt']]],
+  ['audit','Nhật ký quản trị','table',['Thao tác','Người thực hiện','Thời gian','Trạng thái'],[['Cập nhật vai trò Manager','An Nguyễn','31/10/2026 09:15','Thành công'],['Tạo tenant Sunrise','An Nguyễn','30/10/2026 14:20','Thành công'],['Đồng bộ tài khoản','System','30/10/2026 08:00','Hoàn tất']]],
+  ['domains','Tên miền & định danh','table',['Tên miền','Tenant','Loại','Trạng thái'],[['viettech.example','VietTech','Chính','Đã xác minh'],['sunrise.example','Sunrise','Tùy chỉnh','Chờ xác minh'],['nova.example','Nova','Tùy chỉnh','Đã xác minh']]],
+  ['maintenance','Bảo trì nền tảng','checklist',null,[['Kiểm tra bản sao lưu','Hạ tầng · Xác nhận dữ liệu mẫu',true],['Rà soát tài khoản không hoạt động','Bảo mật · Chu kỳ hàng tháng',false],['Kiểm tra quyền ứng dụng','Quản trị · Đối chiếu App Registry',false]]]
+],
+workspace: [
+  ['goals','Mục tiêu cá nhân','progress',null,[['Hoàn thành kế hoạch tháng','8 / 10 đầu việc quan trọng',80],['Học kỹ năng mới','Khóa phân tích dữ liệu',35],['Phát triển khách hàng','Mục tiêu 10 cuộc hẹn',60]]],
+  ['notes','Ghi chú cá nhân','docs',null,[['Ý tưởng tuần mới','An Nguyễn','Chuẩn hóa quy trình bàn giao giữa kinh doanh và triển khai.'],['Ghi chú buổi họp','An Nguyễn','Ưu tiên hoàn thiện báo cáo và chuẩn bị nội dung demo khách hàng.']]],
+  ['schedule','Lịch cá nhân','calendar',null,[['Lập kế hoạch ngày','2026-11-02T08:30','Bàn làm việc'],['Trao đổi cùng quản lý','2026-11-03T10:00','Phòng họp A']]],
+  ['daily','Checklist hằng ngày','checklist',null,[['Kiểm tra công việc ưu tiên','Buổi sáng · Chọn 3 việc quan trọng',true],['Xử lý thông báo đang chờ','Buổi chiều · Phản hồi các đề xuất',false],['Tổng kết cuối ngày','Ghi nhận kết quả và kế hoạch ngày mai',false]]],
+  ['requests','Yêu cầu của tôi','approval',null,[['Cấp màn hình phụ','Thiết bị làm việc · Phòng Công nghệ','Chờ duyệt'],['Đăng ký khóa học','Phân tích dữ liệu · 1.500.000 ₫','Chờ duyệt']]]
+],
+collab: [
+  ['projects','Dự án đội nhóm','progress',null,[['Ra mắt website mới','Đội Marketing · Hạn 15/11',70],['Chuẩn hóa onboarding','Đội Nhân sự · Hạn 20/11',45],['Triển khai CRM Sunrise','Đội Giải pháp · Hạn 30/11',30]]],
+  ['meetings','Lịch họp & phòng họp','calendar',null,[['Sprint planning','2026-11-02T09:00','Phòng họp B'],['Workshop nội bộ','2026-11-03T14:00','Phòng đào tạo']]],
+  ['knowledge','Kho tri thức','docs',null,[['Hướng dẫn làm việc từ xa','Đội Nhân sự','Cập nhật trạng thái công việc, tham gia họp đầu ngày và lưu tài liệu vào thư mục chung.'],['Quy tắc phối hợp dự án','PMO','Chỉ định người phụ trách, thống nhất hạn hoàn thành và cập nhật tiến độ mỗi tuần.']]],
+  ['announcements','Bảng tin nội bộ','notifications',null,[['Chào đón thành viên mới','Nhân sự · 3 đồng nghiệp gia nhập tuần này','Chưa đọc'],['Lịch workshop tháng 11','Đào tạo · Đăng ký với phòng Nhân sự','Chưa đọc'],['Tổng kết quý 3','Ban điều hành · Thành tựu của đội ngũ','Chưa đọc']]],
+  ['handover','Bàn giao công việc','checklist',null,[['Bàn giao tài liệu dự án','Minh Anh → Hoàng Nam · Sunrise CRM',true],['Xác nhận quyền truy cập','IT → Đội triển khai · Môi trường demo',false],['Chốt biên bản nghiệm thu','PMO → Khách hàng · Bản nháp',false]]]
+],
+open: [
+  ['clients','Ứng dụng developer','table',['Ứng dụng','Client ID mẫu','Môi trường','Trạng thái'],[['Đồng bộ CRM','demo_crm_01','Sandbox','Hoạt động'],['Cổng nhân viên','demo_hrm_02','Sandbox','Đang phát triển'],['Báo cáo BI','demo_bi_03','Sandbox','Hoạt động']]],
+  ['scopes','Quyền tích hợp','apps',null,[['customers:read','Cho phép đọc dữ liệu khách hàng trong demo','Bật'],['employees:read','Cho phép đọc hồ sơ nhân sự trong demo','Tắt'],['events:write','Cho phép ghi sự kiện mẫu','Tắt']]],
+  ['deliveries','Lịch sử webhook','table',['Sự kiện','Đích đến','Số lần gửi','Trạng thái'],[['customer.created','CRM Sandbox','1','Thành công'],['employee.updated','HRM Sandbox','3','Chờ thử lại'],['contract.signed','BI Sandbox','1','Thành công']]],
+  ['guides','Hướng dẫn tích hợp','docs',null,[['Bắt đầu với sandbox','Developer Relations','1. Tạo ứng dụng mẫu. 2. Chọn quyền truy cập. 3. Mở API Explorer để kiểm tra phản hồi cục bộ.'],['Xử lý webhook','Developer Relations','Kiểm tra loại sự kiện, chống xử lý trùng và lưu lịch sử nhận sự kiện. Demo không gửi yêu cầu mạng.']]],
+  ['release','Checklist phát hành','checklist',null,[['Kiểm tra schema phản hồi','API · Đối chiếu hợp đồng dữ liệu',true],['Thử các trường hợp lỗi','QA · Thiếu quyền, dữ liệu không hợp lệ',false],['Rà soát cấu hình webhook','Developer · Xác nhận môi trường đích',false]]]
+],
+enterprise: [
+  ['strategy','Mục tiêu chiến lược','progress',null,[['Mở rộng hệ sinh thái','Đưa 3 doanh nghiệp lên nền tảng',67],['Nâng cao hiệu quả vận hành','Giảm 20% thời gian xử lý',55],['Chuyển đổi số toàn diện','Chuẩn hóa 10 quy trình',80]]],
+  ['budgets','Ngân sách đơn vị','table',['Đơn vị','Ngân sách Q4','Đã sử dụng','Trạng thái'],[['VietTech Group','1,2 tỷ ₫','780 triệu ₫','Trong hạn mức'],['Sunrise Corp','600 triệu ₫','420 triệu ₫','Trong hạn mức'],['Nova Digital','350 triệu ₫','310 triệu ₫','Cần rà soát']]],
+  ['assets','Tài sản doanh nghiệp','table',['Tài sản','Đơn vị','Người quản lý','Trạng thái'],[['Máy chủ nội bộ','VietTech','Hoàng Nam','Đang sử dụng'],['Phòng đào tạo','Sunrise','Thanh Hà','Đang sử dụng'],['Thiết bị sự kiện','Nova','Minh Anh','Bảo trì']]],
+  ['risks','Rủi ro & tuân thủ','table',['Rủi ro','Mức độ','Phụ trách','Trạng thái'],[['Chậm tiến độ triển khai','Trung bình','PMO','Đang xử lý'],['Vượt ngân sách marketing','Cao','Tài chính','Theo dõi'],['Thiếu tài liệu bàn giao','Thấp','Vận hành','Đã xử lý']]],
+  ['procurement','Phê duyệt mua sắm','approval',null,[['Nâng cấp hạ tầng','VietTech · 85.000.000 ₫','Chờ duyệt'],['Thiết bị văn phòng','Sunrise · 24.000.000 ₫','Chờ duyệt'],['Phần mềm thiết kế','Nova · 12.000.000 ₫','Chờ duyệt']]]
+]
+};
+for (const [key, screens] of Object.entries(EXTRA_SCREENS)) SYSTEMS[key].screens.push(...screens);

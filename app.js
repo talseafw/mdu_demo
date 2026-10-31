@@ -1,35 +1,148 @@
-const $=s=>document.querySelector(s),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const sys=document.body.dataset.system;let screenId=new URLSearchParams(location.hash.slice(1)).get('screen')||'dashboard',data={};try{data=JSON.parse(localStorage.getItem('mdu-systems-v2'))||{}}catch{}const save=()=>localStorage.setItem('mdu-systems-v2',JSON.stringify(data));
-const system=SYSTEMS[sys],root=sys?'../../':'';let selected=null;
-function toast(t){$('#toast').textContent=t;$('#toast').classList.add('show');clearTimeout(window.tt);window.tt=setTimeout(()=>$('#toast').classList.remove('show'),2400)}
-function records(s){const k=sys+':'+s[0];if(!data[k])data[k]=structuredClone(s[4]||[]);return data[k]}
-function stat(a){let [label,value]=a.split('|');return `<div class="stat"><div class="stat-top">${esc(label)}<i>${system.icon}</i></div><strong>${esc(value)}</strong><small>Số liệu minh họa · tháng 10/2026</small></div>`}
-const table=(heads,rows)=>`<div class="table-wrap"><table><thead><tr>${heads.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.length?rows.map(r=>`<tr>${r.map(v=>`<td>${esc(v)}</td>`).join('')}</tr>`).join(''):'<tr><td colspan="5">Chưa có dữ liệu phù hợp.</td></tr>'}</tbody></table></div>`;
-function portal(){document.body.classList.add('portal');$('#crumb').textContent='Hệ sinh thái MDU';$('#title').textContent='Một hệ sinh thái. Bảy hệ thống.';$('#subtitle').textContent='Chọn hệ thống để khám phá 5 màn hình và các luồng thao tác cơ bản.';$('#create').hidden=true;$('#nav').innerHTML='<a class="portal-nav active" href="index.html">◫ &nbsp; Cổng ứng dụng</a>';$('#content').innerHTML=`<div class="portal-intro"><span class="badge">MDU ENTERPRISE ECOSYSTEM</span><h2>Kết nối vận hành.<br>Mở rộng tăng trưởng.</h2><p>Từ khách hàng, con người đến nền tảng công nghệ —<br>tất cả cùng hoạt động trong hệ sinh thái MDU.</p><span class="orbit">✳</span></div><div class="section-head"><h2>Khám phá các hệ thống</h2><span class="badge">7 hệ thống · 35 màn hình</span></div><div class="system-grid">${Object.entries(SYSTEMS).map(([k,s],i)=>`<a class="app-card system-card" href="systems/${k}/index.html"><span class="app-icon">${s.icon}</span><span class="arrow">↗</span><small>HỆ THỐNG 0${i+1}</small><h3>${s.name}</h3><p>${s.desc}</p><div class="screen-tags">${s.screens.map(t=>`<span>${t[1]}</span>`).join('')}</div><div class="app-foot"><span>Khám phá hệ thống →</span><span>05 màn hình</span></div></a>`).join('')}</div>`}
-function current(){return system.screens.find(s=>s[0]===screenId)||system.screens[0]}
-function render(){if(!system)return portal();const s=current();screenId=s[0];$('#crumb').textContent=system.name+' / '+s[1];$('#title').textContent=s[1];$('#subtitle').textContent=system.desc;$('.eyebrow').textContent=system.name.toUpperCase();$('.company strong').textContent=system.name;$('.company small').textContent='Hệ thống độc lập · Demo';$('.nav-label').textContent='CHỨC NĂNG HỆ THỐNG';$('#nav').innerHTML=system.screens.map((a,i)=>`<button data-screen="${a[0]}" class="${a[0]===screenId?'active':''}"><span>${['◫','▤','◇','▦','⌘'][i]}</span>${a[1]}</button>`).join('')+`<a class="portal-nav" href="${root}index.html">← Cổng ứng dụng</a>`;$('#create').hidden=!['table','board','approval','calendar','docs','webhooks'].includes(s[2]);$('#create').textContent='＋ Thêm mới';$('#content').innerHTML=view(s);if($('#search'))$('#search').oninput=()=>updateRows(s);if($('#filter'))$('#filter').onchange=()=>updateRows(s);if($('#chat-form'))$('#chat-form').onsubmit=sendMessage;if($('#profile-form'))$('#profile-form').onsubmit=e=>{e.preventDefault();data.profile={name:$('#profile-name').value,email:$('#profile-email').value,language:$('#language').value};save();toast('Đã lưu tùy chọn cá nhân')};}
-function view(s){let rows=records(s);switch(s[2]){
-case 'dashboard':return `<div class="stats">${s[3].map(stat).join('')}</div><div class="section-head"><h2>Truy cập nhanh</h2><span class="badge">${system.name}</span></div><div class="apps">${system.screens.slice(1).map((a,i)=>`<button class="app-card" data-screen="${a[0]}"><span class="app-icon">${['▤','◇','▦','⌘'][i]}</span><span class="arrow">↗</span><strong>${a[1]}</strong><p>Mở màn hình để xem dữ liệu và thao tác.</p><div class="app-foot"><span>Truy cập →</span><span>Demo</span></div></button>`).join('')}</div><div class="columns"><section class="panel"><div class="panel-top"><h2>Hoạt động hệ thống</h2><span class="badge">Hôm nay</span></div>${['Dữ liệu vận hành đã được cập nhật','Báo cáo tháng 10 đã sẵn sàng','An Nguyễn đã truy cập hệ thống'].map((a,i)=>`<div class="activity"><span class="activity-icon">✓</span><div><p>${a}</p><small>${system.name} · VietTech Group</small></div><time>${i+1} giờ trước</time></div>`).join('')}</section><section class="panel"><h2>Không gian hệ thống</h2><p class="muted">${system.desc}</p><p>05 màn hình chức năng<br>Dữ liệu lưu trong trình duyệt<br>Không có kết nối dịch vụ thực tế</p><a class="text-btn" href="${root}index.html">Đổi hệ thống ↗</a></section></div>`;
-case 'table':case 'attendance':case 'logs':return `<div class="toolbar"><input id="search" placeholder="Tìm kiếm trong danh sách…"><select id="filter"><option value="">Tất cả trạng thái</option>${[...new Set(rows.map(r=>r.at(-1)))].map(v=>`<option>${esc(v)}</option>`).join('')}</select>${s[2]==='attendance'?'<button class="primary" id="checkin">Chấm công hôm nay</button>':''}${s[2]==='logs'?'<button class="primary" id="export">Xuất CSV</button>':''}</div><section class="panel" id="table-area">${table(s[3],rows)}</section>`;
-case 'board':{let stages=sys==='workspace'?['Cần làm','Đang làm','Hoàn thành']:['Tiếp cận','Đàm phán','Đã thắng'];return `<div class="kanban">${stages.map((stage,i)=>`<section class="kanban-col"><h3>${stage}<span>${rows.filter(r=>r[2]===['Tiếp cận','Đàm phán','Đã thắng'][i]).length}</span></h3>${rows.map((r,n)=>r[2]===['Tiếp cận','Đàm phán','Đã thắng'][i]?`<div class="deal"><strong>${esc(r[0])}</strong><p>${esc(r[1])}</p><label>Trạng thái<select data-move="${n}">${stages.map((x,j)=>`<option value="${['Tiếp cận','Đàm phán','Đã thắng'][j]}" ${i===j?'selected':''}>${x}</option>`).join('')}</select></label></div>`:'').join('')}</section>`).join('')}</div>`}
-case 'approval':return `<section class="panel"><div class="panel-top"><h2>Danh sách đề xuất</h2><span class="badge">${rows.filter(r=>r[2]==='Chờ duyệt').length} chờ xử lý</span></div>${rows.map((r,i)=>`<div class="approval"><i>▤</i><div><strong>${esc(r[0])}</strong><small>${esc(r[1])} · ${esc(r[2])}</small></div>${r[2]==='Chờ duyệt'?`<div class="row-actions"><button data-action="approve" data-index="${i}">Duyệt ✓</button><button data-action="reject" data-index="${i}">Từ chối</button></div>`:`<span class="status">${esc(r[2])}</span>`}</div>`).join('')}</section>`;
-case 'chat':{const messages=data.messages||[['Đội vận hành','Chào cả nhà! Kế hoạch tuần mới đã được chia sẻ.']];return `<section class="panel"><div class="panel-top"><h2># Đội ngũ VietTech</h2><span class="status">Kênh trao đổi mẫu</span></div><div class="chat">${messages.map(m=>`<div class="bubble ${m[0]==='Bạn'?'self':''}"><b>${esc(m[0])}</b><p>${esc(m[1])}</p></div>`).join('')}</div><form id="chat-form" class="chat-form"><input id="message" required placeholder="Nhập tin nhắn cho đội ngũ…"><button class="primary">Gửi ↗</button></form></section>`}
-case 'calendar':return `<div class="calendar-layout"><section class="panel"><h2>Lịch tháng 11 / 2026</h2><div class="month-grid">${['T2','T3','T4','T5','T6','T7','CN'].map(d=>`<b>${d}</b>`).join('')}${Array.from({length:6},()=>'<span></span>').join('')}${Array.from({length:30},(_,i)=>`<span class="${[2,3].includes(i+1)?'has-event':''}">${i+1}</span>`).join('')}</div></section><section class="panel"><h2>Lịch hẹn sắp tới</h2>${rows.map(r=>`<div class="approval"><i>▦</i><div><strong>${esc(r[0])}</strong><small>${esc(r[1].replace('T',' · '))} · ${esc(r[2])}</small></div></div>`).join('')}</section></div>`;
-case 'docs':return `<div class="grid-three">${rows.map((r,i)=>`<div class="tile"><span class="app-icon">▤</span><h3>${esc(r[0])}</h3><p>Người tạo: ${esc(r[1])}</p><button class="text-btn" data-action="read" data-index="${i}">Đọc tài liệu ↗</button></div>`).join('')}</div>`;
-case 'permissions':{const roles=data.roles||{Admin:[true,true,true,true],Manager:[true,true,false,false],Member:[true,false,false,false]};return `<section class="panel"><div class="panel-top"><h2>Ma trận quyền truy cập</h2><span class="badge">Mô phỏng RBAC</span></div><div class="table-wrap"><table><tr><th>Vai trò</th>${['Đọc dữ liệu','Chỉnh sửa','Quản lý người dùng','Cấu hình nền tảng'].map(x=>`<th>${x}</th>`).join('')}</tr>${Object.entries(roles).map(([role,perms])=>`<tr><td>${role}</td>${perms.map((v,i)=>`<td><input type="checkbox" aria-label="${role} quyền ${i+1}" data-role="${role}" data-permission="${i}" ${v?'checked':''}></td>`).join('')}</tr>`).join('')}</table></div><p class="muted">Thay đổi được lưu tự động để trình diễn; không áp dụng kiểm soát truy cập thực tế.</p></section>`}
-case 'apps':case 'webhooks':return `<div class="grid-three">${rows.map((r,i)=>`<div class="tile"><span class="app-icon">⌘</span><h3>${esc(r[0])}</h3><p style="overflow-wrap:anywhere">${esc(r[1])}</p><span class="status ${r[2]==='Bật'?'':'pending'}">${r[2]==='Bật'?'Đang bật':'Đang tắt'}</span><div><button class="text-btn" data-action="toggle" data-index="${i}">${r[2]==='Bật'?'Tắt':'Bật'} kết nối</button>${s[2]==='webhooks'?`<button class="text-btn" data-action="test" data-index="${i}">Gửi thử</button>`:''}</div></div>`).join('')}</div>${s[2]==='webhooks'?'<section class="panel" style="margin-top:20px"><h2>Kết quả gửi thử</h2><pre id="webhook-result">Chưa có sự kiện thử. Không gửi yêu cầu ra Internet.</pre></section>':''}`;
-case 'api':return `<section class="panel"><div class="panel-top"><h2>REST API Sandbox</h2><span class="badge">Phản hồi cục bộ · không gọi API thật</span></div><div class="toolbar"><select id="endpoint"><option value="crm:customers">GET /v1/customers</option><option value="hrm:employees">GET /v1/employees</option><option value="core:tenants">GET /v1/tenants</option></select><button id="request" class="primary">Gửi yêu cầu ↗</button></div><pre id="response">Chọn endpoint để xem phản hồi JSON.</pre></section>`;
-case 'launcher':return `<div class="grid-three">${Object.entries(SYSTEMS).filter(([k])=>k!=='workspace').map(([k,a])=>`<a class="app-card" href="../${k}/index.html"><span class="app-icon">${a.icon}</span><h3>${a.name}</h3><p>${a.desc}</p><span class="text-btn">Mở ứng dụng ↗</span></a>`).join('')}</div>`;
-case 'notifications':return `<section class="panel">${rows.map((r,i)=>`<div class="approval"><i>♧</i><div><strong>${esc(r[0])}</strong><small>${esc(r[1])}</small></div><button data-action="seen" data-index="${i}" ${r[2]==='Đã đọc'?'disabled':''}>${r[2]==='Đã đọc'?'Đã đọc ✓':'Đánh dấu đã đọc'}</button></div>`).join('')}</section>`;
-case 'profile':{const p=data.profile||{name:'An Nguyễn',email:'an@viettech.example',language:'Tiếng Việt'};return `<section class="panel"><form id="profile-form" class="settings-form"><h2>Thông tin cá nhân</h2><label>Họ tên<input id="profile-name" required value="${esc(p.name)}"></label><label>Email<input id="profile-email" type="email" required value="${esc(p.email)}"></label><label>Ngôn ngữ hiển thị<select id="language"><option>Tiếng Việt</option></select></label><button class="primary">Lưu thay đổi</button></form></section>`}
-case 'report':return `<section class="panel"><div class="panel-top"><h2>Doanh thu theo tháng</h2><button id="export" class="text-btn">Xuất CSV ↓</button></div><div class="bar-chart">${s[3].map(a=>{let [m,v]=a.split('|');return `<div><b>${v} triệu</b><span style="height:${Number(v)/2}px"></span><small>${m}</small></div>`}).join('')}</div><p class="muted">Dữ liệu minh họa, đơn vị triệu VNĐ.</p></section>`;
-case 'plans':return `<div class="grid-three">${[['Starter','990.000 ₫','20 tài khoản · CRM cơ bản'],['Business','2.990.000 ₫','100 tài khoản · CRM + HRM'],['Enterprise','Liên hệ','Nhiều tenant · Toàn bộ ứng dụng']].map(r=>`<div class="tile"><span class="app-icon">✦</span><h3>${r[0]}</h3><h2>${r[1]}</h2><p>${r[2]}</p><button class="primary" data-plan="${r[0]}">${data.plan===r[0]?'Đang chọn ✓':'Chọn gói demo'}</button></div>`).join('')}</div><p class="muted">Bảng giá minh họa; không phát sinh thanh toán.</p>`;
-case 'monitor':return `<div class="stats">${['Uptime|99,98%','Độ trễ|42 ms','CPU|32%','Bộ nhớ|64%'].map(stat).join('')}</div><section class="panel" style="margin-top:24px"><div class="panel-top"><h2>Trạng thái dịch vụ</h2><button id="refresh" class="text-btn">Làm mới ↻</button></div>${table(['Dịch vụ','Khu vực','Trạng thái'],[['Identity Service','Asia Southeast','Hoạt động'],['CRM Service','Asia Southeast','Hoạt động'],['HRM Service','Asia Southeast','Hoạt động'],['Webhook Worker','Asia Southeast','Hoạt động']])}<p id="updated" class="muted">Trạng thái mô phỏng, không phải số liệu giám sát trực tiếp.</p></section>`;
-case 'architecture':return `<div class="layers">${[['MDU hiện tại','CRM + HRM'],['MDU Platform Core','Tenant · Identity · RBAC · App Registry'],['MDU Workspace','Trải nghiệm thống nhất'],['MDU Collaboration','Messenger · Approval · Calendar · Docs'],['MDU Open Platform','API · Webhooks · Apps · Integrations'],['MDU Enterprise Platform','Đa ứng dụng · Đa doanh nghiệp · Mở rộng độc lập']].map((r,i)=>`<div class="layer"><span>0${i+1}</span><div><h3>${r[0]}</h3><p>${r[1]}</p></div></div>${i<5?'<div class="layer-arrow">↓</div>':''}`).join('')}</div>`;
-default:return ''}}
-function updateRows(s){const q=$('#search').value.toLocaleLowerCase('vi'),f=$('#filter').value;$('#table-area').innerHTML=table(s[3],records(s).filter(r=>r.join(' ').toLocaleLowerCase('vi').includes(q)&&(!f||r.at(-1)===f)))}
-function sendMessage(e){e.preventDefault();const text=$('#message').value.trim();if(!text)return;if(!data.messages)data.messages=[['Đội vận hành','Chào cả nhà! Kế hoạch tuần mới đã được chia sẻ.']];data.messages.push(['Bạn',text]);save();render()}
-function openForm(){const s=current();selected=null;$('#modal-title').textContent='Thêm mới · '+s[1];const t=s[2];let fields=t==='table'?s[3].map((h,i)=>({label:h,value:i===s[3].length-1?'Mới':''})):t==='board'?[{label:'Tên công việc / cơ hội'},{label:'Mô tả / giá trị'},{label:'Trạng thái',options:['Tiếp cận','Đàm phán','Đã thắng']}]:t==='calendar'?[{label:'Tên lịch hẹn'},{label:'Ngày và giờ',type:'datetime-local'},{label:'Địa điểm'}]:t==='docs'?[{label:'Tên tài liệu'},{label:'Người tạo'},{label:'Nội dung',type:'textarea'}]:t==='webhooks'?[{label:'Tên webhook'},{label:'Địa chỉ HTTPS',type:'url'},{label:'Trạng thái',options:['Tắt','Bật']}]:[{label:'Tên đề xuất'},{label:'Chi tiết'},{label:'Trạng thái',options:['Chờ duyệt']}];$('#fields').innerHTML=fields.map((f,i)=>`<label>${esc(f.label)}${f.options?`<select name="f${i}">${f.options.map(o=>`<option>${o}</option>`).join('')}</select>`:f.type==='textarea'?`<textarea name="f${i}" required></textarea>`:`<input name="f${i}" type="${f.type||'text'}" value="${esc(f.value||'')}" required>`}</label>`).join('');$('#submit').hidden=false;$('#modal').showModal()}
-document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.screen){location.hash='screen='+b.dataset.screen;return}if(b.id==='create')return openForm();if(b.id==='close')return $('#modal').close();if(b.id==='notification')return toast('Các số liệu và thông báo trong demo là dữ liệu minh họa.');if(b.id==='architecture')return location.href=root+'index.html';if(!system)return;const s=current(),rows=records(s),i=Number(b.dataset.index),r=rows[i];switch(b.dataset.action){case 'approve':case 'reject':r[2]=b.dataset.action==='approve'?'Đã duyệt':'Từ chối';save();render();toast('Đã cập nhật đề xuất');break;case 'toggle':r[2]=r[2]==='Bật'?'Tắt':'Bật';save();render();break;case 'seen':r[2]='Đã đọc';save();render();break;case 'read':$('#modal-title').textContent=r[0];$('#fields').innerHTML=`<p class="doc-text">${esc(r[2])}</p><small>Người tạo: ${esc(r[1])}</small>`;$('#submit').hidden=true;$('#modal').showModal();break;case 'test':$('#webhook-result').textContent=r[2]==='Bật'?JSON.stringify({mode:'simulation',event:'customer.created',destination:r[1],status:200},null,2):'Webhook đang tắt. Hãy bật trước khi gửi thử.';break}if(b.dataset.plan){data.plan=b.dataset.plan;save();render();toast('Đã chọn gói mô phỏng; không phát sinh thanh toán')}if(b.id==='request'){const key=$('#endpoint').value,[k,id]=key.split(':');const spec=SYSTEMS[k].screens.find(x=>x[0]===id);$('#response').textContent=JSON.stringify({status:200,mode:'local-demo',data:data[key]||spec[4]},null,2)}if(b.id==='checkin'){rows.push([data.profile?.name||'An Nguyễn',new Date().toLocaleDateString('vi-VN',{timeZone:'Asia/Bangkok'}),new Date().toLocaleTimeString('vi-VN',{timeZone:'Asia/Bangkok'}),'Đã chấm công']);save();render();toast('Đã ghi nhận chấm công mẫu')}if(b.id==='refresh')$('#updated').textContent='Làm mới dữ liệu mô phỏng lúc '+new Date().toLocaleTimeString('vi-VN',{timeZone:'Asia/Bangkok'});if(b.id==='export'){const content=s[2]==='report'?[['Tháng','Doanh thu (triệu VNĐ)'],...s[3].map(x=>x.split('|'))]:[s[3],...rows];const blob=new Blob(['\ufeff'+content.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=sys+'-'+s[0]+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}});
-document.addEventListener('change',e=>{const t=e.target;if(t.dataset.move!==undefined){records(current())[Number(t.dataset.move)][2]=t.value;save();render()}if(t.dataset.role){if(!data.roles)data.roles={Admin:[true,true,true,true],Manager:[true,true,false,false],Member:[true,false,false,false]};data.roles[t.dataset.role][Number(t.dataset.permission)]=t.checked;save();toast('Đã lưu quyền mô phỏng')}});
-$('#form').onsubmit=e=>{e.preventDefault();const row=Array.from(new FormData(e.target).values()).map(v=>v.trim());if(row.some(v=>!v))return;if(current()[2]==='webhooks'&&!row[1].startsWith('https://'))return toast('Vui lòng dùng địa chỉ HTTPS');records(current()).unshift(row);save();$('#modal').close();render();toast('Đã thêm dữ liệu thành công')};window.onhashchange=()=>{screenId=new URLSearchParams(location.hash.slice(1)).get('screen')||'dashboard';render()};render();
+const $ = selector => document.querySelector(selector);
+const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sys = document.body.dataset.system;
+const system = SYSTEMS[sys];
+const root = sys ? '../../' : '';
+let data = {};
+try { const stored=JSON.parse(localStorage.getItem('mdu-systems-v2')); if(stored && typeof stored==='object' && !Array.isArray(stored)) data=stored; } catch {}
+data._meta ||= {};
+data._history ||= [];
+data._links ||= [];
+migrateBusinessSeeds(data);
+const ui = {company:sessionStorage.getItem('mdu-company') || 'all',query:'',filter:'',month:'2026-11',day:'',channel:'general',form:null,detail:null};
+if(ui.company!=='all'&&!COMPANIES.some(c=>c.id===ui.company))ui.company='all';
+let screenId = new URLSearchParams(location.hash.slice(1)).get('screen') || 'dashboard';
+const uuid = () => crypto.randomUUID();
+const companyName = id => COMPANIES.find(c=>c.id===id)?.name || 'Toàn tập đoàn';
+const actor = () => data.profile?.name || 'An Nguyễn';
+const keyOf = (screen, systemKey=sys) => `${systemKey}:${typeof screen==='string'?screen:screen[0]}`;
+function spec(id, systemKey=sys) { return SYSTEMS[systemKey].screens.find(s=>s[0]===id); }
+function current() { return spec(screenId) || system.screens[0]; }
+function records(screen, systemKey=sys) {
+  const s=typeof screen==='string'?spec(screen,systemKey):screen;
+  const key=keyOf(s,systemKey);
+  if(!Array.isArray(data[key])) data[key]=structuredClone(s[4]||[]);
+  data._meta[key] ||= [];
+  data[key].forEach((row,i)=>{
+    if(!data._meta[key][i]) data._meta[key][i]={id:uuid(),company:COMPANIES[i%3].id,owner:BUSINESS[systemKey].meta[s[0]]?.owner || actor(),due:'',created:'2026-10-31T09:00:00+07:00',notes:''};
+  });
+  return data[key];
+}
+function entries(screen, systemKey=sys, scoped=true) {
+  return records(screen,systemKey).map((row,index)=>({row,index,meta:data._meta[keyOf(screen,systemKey)][index]})).filter(e=>!scoped||ui.company==='all'||e.meta.company===ui.company);
+}
+function metadata(screen,index,systemKey=sys) { records(screen,systemKey); return data._meta[keyOf(screen,systemKey)][index]; }
+function findEntry(ref) { return entries(ref.screen,ref.system,false).find(e=>e.meta.id===ref.id); }
+function reference(screen,index,systemKey=sys) { return {system:systemKey,screen:typeof screen==='string'?screen:screen[0],id:metadata(screen,index,systemKey).id}; }
+function addRow(screen,row,systemKey=sys,meta={}) {
+  records(screen,systemKey);
+  const key=keyOf(screen,systemKey);
+  data[key].unshift(row);
+  data._meta[key].unshift({id:uuid(),company:ui.company==='all'?'viettech':ui.company,owner:actor(),due:'',notes:'',created:new Date().toISOString(),...meta});
+  return reference(screen,0,systemKey);
+}
+function linkRecords(source,target,label) { data._links.push({source,target,label}); }
+function linked(source,targetScreen,targetSystem=sys) { return data._links.find(l=>l.source.id===source.id&&l.target.screen===targetScreen&&l.target.system===targetSystem); }
+function save() {
+  try { localStorage.setItem('mdu-systems-v2',JSON.stringify(data)); return true; }
+  catch { toast('Bộ nhớ trình duyệt đã đầy. Thay đổi chưa được lưu sau khi đóng trang.'); return false; }
+}
+function audit(action,screen=current()?.[0],index=null,systemKey=sys) {
+  const meta=index===null?null:metadata(screen,index,systemKey);
+  data._history.unshift({id:uuid(),system:systemKey,screen,recordId:meta?.id,company:meta?.company || (ui.company==='all'?'viettech':ui.company),action,actor:actor(),at:new Date().toISOString()});
+  data._history=data._history.slice(0,500);
+}
+function commit(message,screen=current()[0],index=null) { audit(message,screen,index); save(); render(); toast(message); }
+function notify(title,detail,company) { addRow('notifications',[title,detail,'Chưa đọc'],'workspace',{company}); }
+function toast(message) { $('#toast').textContent=message; $('#toast').classList.add('show'); clearTimeout(window.toastTimer); window.toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3200); }
+function money(value) {
+  const text=String(value).toLowerCase();
+  const multiplier=text.includes('tỷ')?1e9:text.includes('triệu')?1e6:1;
+  const token=text.match(/[\d][\d.,]*/)?.[0] || '0';
+  const number=multiplier===1?Number(token.replace(/[.,]/g,'')):Number(token.replaceAll('.','').replace(',','.'));
+  return Number.isFinite(number)?number*multiplier*(/^\s*-/.test(text)?-1:1):0;
+}
+const currency = value => Math.round(value).toLocaleString('vi-VN')+' ₫';
+const compactMoney = value => value>=1e9?(value/1e9).toLocaleString('vi-VN',{maximumFractionDigits:2})+' tỷ':value>=1e6?(value/1e6).toLocaleString('vi-VN',{maximumFractionDigits:1})+' tr':currency(value);
+const formatTime = value => new Date(value).toLocaleString('vi-VN',{timeZone:'Asia/Bangkok',dateStyle:'short',timeStyle:'short'});
+const businessMeta = s => BUSINESS[sys].meta[s[0]];
+const canCreate = s => !['audit','logs','attendance','deliveries'].includes(s[0]) && ['table','board','approval','calendar','docs','webhooks','progress','checklist'].includes(s[2]);
+const canEdit = s => !['audit','logs','attendance','deliveries'].includes(s[0]) && s[2]!=='approval';
+function statusBadge(value) {
+  const tone=/Từ chối|Thất bại|Đã hủy|Cao|401|403|500|Tạm khóa/.test(value)?'danger':/Hoàn|Hiệu lực|Thành công|Đã duyệt|Đang hợp tác|Hoạt động|Đã xác minh|Đã thắng|^Bật$|^20\d$/.test(value)?'success':'waiting';
+  return `<span class="status ${tone}">${esc(value)}</span>`;
+}
+function viewStatus(s,row) {
+  if(s[2]==='docs')return 'Tài liệu';
+  if(s[2]==='calendar')return 'Đã lên lịch';
+  if(s[2]==='board'&&sys==='workspace') return ({'Tiếp cận':'Cần làm','Đàm phán':'Đang làm','Đã thắng':'Hoàn thành'})[row[2]] || row[2];
+  if(s[2]==='progress') return `${row[2]}%`;
+  if(s[2]==='checklist') return row[2]?'Hoàn tất':'Cần làm';
+  return row.at(-1);
+}
+function go(screen) { if(screenId===screen) render(); else location.hash='screen='+screen; }
+function navCount(id) {
+  if(id==='audit'&&sys==='core')return data._history.filter(h=>ui.company==='all'||h.company===ui.company).length;
+  return ['dashboard','report','profile','plans','monitor','architecture','api','permissions','chat','launcher'].includes(spec(id)[2])?null:entries(id).length;
+}
+function recordLink(ref,label) { return `<a class="text-btn" href="${root}systems/${ref.system}/index.html#screen=${ref.screen}&record=${ref.id}">${esc(label)} ↗</a>`; }
+function render() {
+  if(!system) return renderPortal();
+  const s=current(), meta=businessMeta(s), config=BUSINESS[sys];
+  screenId=s[0];
+  document.title=`${s[1]} · ${system.name}`;
+  $('#crumb').textContent=system.name+' / '+s[1];
+  $('#title').textContent=s[1];
+  $('#subtitle').textContent=meta.description;
+  $('.eyebrow').textContent=config.code+' / '+meta.group.toUpperCase();
+  $('.company strong').textContent=system.name;
+  $('.company small').textContent=config.role;
+  $('.company i').textContent=config.code.slice(0,2);
+  $('.nav-label').textContent='KHÔNG GIAN NGHIỆP VỤ';
+  const scroll=$('#nav').scrollTop;
+  $('#nav').innerHTML=config.groups.map(group=>`<div class="nav-group-label">${esc(group)}</div>${config.screens.filter(a=>a[1]===group).map(([id])=>`<button data-screen="${id}" class="${id===s[0]?'active':''}" ${id===s[0]?'aria-current="page"':''}><span>${id==='dashboard'?'◫':config.flow.includes(id)?'◇':'▤'}</span>${esc(spec(id)[1])}${navCount(id)===null?'':`<small>${navCount(id)}</small>`}</button>`).join('')}`).join('')+`<a class="portal-nav" href="${root}index.html">← Hệ sinh thái tập đoàn</a>`;
+  $('#nav').scrollTop=scroll;
+  if(matchMedia('(max-width:650px)').matches) { const active=$('#nav .active');$('#nav').scrollLeft=active.offsetLeft-$('#nav').offsetLeft-12; }
+  $('.live').textContent='● Môi trường trình diễn';
+  $('.profile strong').textContent=actor();
+  $('.profile small').textContent=config.role;
+  $('#create').hidden=!canCreate(s);
+  $('#create').textContent=s[2]==='approval'?'＋ Tạo đề xuất':s[2]==='docs'?'＋ Soạn tài liệu':'＋ Thêm mới';
+  $('#company-switch').value=ui.company;
+  $('#content').innerHTML=(s[0]==='dashboard'?'':screenContext(s))+view(s);
+  if($('#search')) $('#search').oninput=e=>{ui.query=e.target.value;updateTable(s);};
+  if($('#filter')) $('#filter').onchange=e=>{ui.filter=e.target.value;updateTable(s);};
+  if($('#chat-form')) $('#chat-form').onsubmit=sendMessage;
+  if($('#profile-form')) $('#profile-form').onsubmit=e=>{e.preventDefault();data.profile={name:$('#profile-name').value.trim(),email:$('#profile-email').value.trim(),language:'Tiếng Việt'};commit('Cập nhật hồ sơ cá nhân');};
+}
+function screenContext(s) {
+  const m=businessMeta(s), flow=BUSINESS[sys].flow;
+  return `<div class="screen-context"><span><i class="context-dot"></i>${esc(companyName(ui.company))}</span><span>Phụ trách: <b>${esc(m.owner)}</b></span><span>Kết quả: <b>${esc(m.outcome)}</b></span></div>${flow.includes(s[0])?`<div class="workflow-rail" aria-label="Luồng nghiệp vụ">${flow.map((id,i)=>`<button data-screen="${id}" class="${id===s[0]?'selected':''}"><small>0${i+1}</small>${esc(spec(id)[1])}<span>→</span></button>`).join('')}</div>`:''}`;
+}
+function renderPortal() {
+  document.body.classList.add('portal');
+  document.title='MDU Group · Hệ sinh thái quản trị tập đoàn';
+  $('#title').textContent='Điều hành đa ngành. Kết nối toàn tập đoàn.';
+  $('#subtitle').textContent='Công nghệ · Bán lẻ · Logistics — bảy hệ thống cùng phối hợp trên một hành trình vận hành.';
+  $('#crumb').textContent='Hệ sinh thái tập đoàn';
+  $('#create').hidden=true;
+  $('#nav').innerHTML='<a class="portal-nav active" href="index.html">◫ Tổng quan hệ sinh thái</a>';
+  $('.live').textContent='● Môi trường trình diễn';
+  $('#content').innerHTML=`<section class="group-hero"><div><span class="overline">MDU GROUP / OPERATING PLATFORM</span><h2>Từ chiến lược tập đoàn<br>đến từng công việc hằng ngày.</h2><p>Quản trị tập trung, vận hành theo đơn vị. Khám phá các luồng nghiệp vụ và chuyển tiếp hồ sơ giữa các hệ thống.</p><div class="hero-chips"><span>03 ngành kinh doanh</span><span>07 hệ thống</span><span>70 màn hình</span></div></div><div class="group-entities">${COMPANIES.map((c,i)=>`<div><b>0${i+1}</b><span><strong>${c.name}</strong><small>${c.sector}</small></span><i>↗</i></div>`).join('')}</div></section><div class="section-head"><h2>Không gian điều hành & vận hành</h2><span class="muted">Chọn vai trò, bắt đầu công việc</span></div><div class="system-grid">${Object.entries(SYSTEMS).map(([key,s])=>`<a class="app-card system-card" href="systems/${key}/index.html"><div class="card-kicker"><span class="app-icon">${s.icon}</span><small>${BUSINESS[key].code}</small><span class="arrow">↗</span></div><h3>${s.name}</h3><p>${s.desc}</p><div class="role-label">${BUSINESS[key].role}</div><div class="screen-tags">${BUSINESS[key].flow.slice(0,4).map(id=>`<span>${esc(SYSTEMS[key].screens.find(s=>s[0]===id)[1])}</span>`).join('')}</div><div class="app-foot"><span>Vào không gian làm việc →</span><span>10 phân hệ</span></div></a>`).join('')}</div><section class="panel integration-map"><h2>Những nghiệp vụ đã kết nối</h2><div class="integration-links"><span>CRM · Hợp đồng → Chăm sóc khách hàng</span><span>HRM · Tuyển dụng → Hồ sơ → Hội nhập</span><span>Workspace · Yêu cầu → Collaboration · Phê duyệt</span><span>Open Platform · API → Dữ liệu CRM / HRM / Core</span><span>Enterprise · Mua sắm → Ngân sách đơn vị</span></div><p class="muted">Bản trình diễn nghiệp vụ: dữ liệu lưu tại trình duyệt, không gửi giao dịch hoặc kết nối dịch vụ thực tế.</p></section>`;
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  if(system) {
+    const toolbar=document.createElement('div');toolbar.className='workspace-toolbar';
+    toolbar.innerHTML=`<label class="company-filter">Phạm vi dữ liệu<select id="company-switch" aria-label="Đơn vị kinh doanh"><option value="all">Toàn tập đoàn</option>${COMPANIES.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}</select></label><div class="environment-tag"><span></span>Dữ liệu trình diễn · Lưu trên trình duyệt</div><button class="secondary" id="business-guide">Bản đồ nghiệp vụ ↗</button>`;
+    document.querySelector('main').insertBefore(toolbar,$('.page-heading'));
+    $('#company-switch').onchange=e=>{ui.company=e.target.value;sessionStorage.setItem('mdu-company',ui.company);ui.query='';ui.filter='';ui.day='';render();};
+  }
+  const detail=document.createElement('dialog');detail.id='detail-drawer';detail.className='detail-drawer';detail.setAttribute('aria-label','Chi tiết hồ sơ');document.body.append(detail);
+  $('#modal').setAttribute('aria-labelledby','modal-title');
+  render();
+  save();
+  openHashRecord();
+});
+function openHashRecord() { const id=new URLSearchParams(location.hash.slice(1)).get('record');if(system&&id){const e=entries(current(),sys,false).find(e=>e.meta.id===id);if(e)openDetail(e.index);} }
+window.onhashchange=()=>{screenId=new URLSearchParams(location.hash.slice(1)).get('screen')||'dashboard';ui.query='';ui.filter='';ui.day='';$('#detail-drawer')?.close();render();openHashRecord();};
+window.addEventListener('storage',event=>{if(event.key==='mdu-systems-v2'&&event.newValue){try{data=JSON.parse(event.newValue);if(!$('#modal').open&&!$('#detail-drawer').open)render();}catch{}}});

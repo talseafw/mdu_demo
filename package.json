@@ -1,0 +1,8 @@
+{
+  "name": "mdu-local-environment",
+  "private": true,
+  "scripts": {
+    "start": "node scripts/serve.cjs",
+    "dev": "node scripts/serve.cjs"
+  }
+}

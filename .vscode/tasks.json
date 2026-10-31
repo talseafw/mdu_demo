@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0",
+  "tasks": [{
+    "label": "MDU: start server",
+    "type": "process",
+    "command": "node",
+    "args": ["${workspaceFolder}/scripts/serve.cjs"],
+    "options": { "cwd": "${workspaceFolder}" },
+    "isBackground": true,
+    "problemMatcher": {
+      "owner": "mdu-server",
+      "pattern": { "regexp": "^$" },
+      "background": {
+        "activeOnStart": true,
+        "beginsPattern": "^Starting MDU",
+        "endsPattern": "^MDU ready:"
+      }
+    },
+    "presentation": { "reveal": "silent", "panel": "dedicated" },
+    "runOptions": { "instanceLimit": 1 }
+  }]
+}
